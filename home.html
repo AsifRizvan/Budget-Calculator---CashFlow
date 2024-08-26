@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashFlow - Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link rel="icon" href="./images/budget.png">
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Roboto', sans-serif;
+        }
+        .header {
+            background-color: #4b0082;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .welcome{
+            width: 250px;
+        }
+        .title{
+            width: 250px;
+        }
+        .header button {
+            background-color: #ffffff;
+            color: #4b0082;
+            font-weight: bold;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .header button:hover {
+            background-color: #3a0068;
+            color: #fff;
+        }
+        .card {
+            background-color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .card-header {
+            background-color: #4b0082;
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+        }
+        .table thead {
+            background-color: #4b0082;
+            color: #fff;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .pie-chart-container {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            display: none; /* Hide the chart initially */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="welcome">Welcome, <span id="username"></span></h1>
+            <h1 class="title">CashFlow</h1>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Total Balance</div>
+                    <div class="card-body">
+                        <h4 id="total-balance">$0</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Total Expense</div>
+                    <div class="card-body">
+                        <h4 id="total-expense">$0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Add Income</div>
+                    <div class="card-body">
+                        <form id="income-form">
+                            <div class="mb-3">
+                                <label for="income-type" class="form-label">Income Type</label>
+                                <input type="text" class="form-control" id="income-type" placeholder="e.g., Salary" required>
+                            </div>  
+                            <div class="mb-3">
+                                <label for="income-amount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="income-amount" placeholder="e.g., 500" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Add Income</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Add Expense</div>
+                    <div class="card-body">
+                        <form id="expense-form">
+                            <div class="mb-3">
+                                <label for="expense-type" class="form-label">Expense Type</label>
+                                <input type="text" class="form-control" id="expense-type" placeholder="e.g., Rent" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="expense-amount" class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="expense-amount" placeholder="e.g., 300" required>
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100">Add Expense</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <button onclick="clearAll()" class="btn btn-warning" id="clear">Clear All <i class="fa-solid fa-trash ms-1"></i></button>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Income Details</div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                    <th>Date & Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="income-details">
+                                <!-- Income rows will go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">Expense Details</div>
+                    <div class="card-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                    <th>Date & Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expense-details">
+                                <!-- Expense rows will go here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button onclick="toggleChart()" class="btn btn-primary mb-2">Show Chart</button>
+        </div>
+
+        <div class="pie-chart-container" style="height: 60vh; margin-bottom: 100px;">
+            <canvas style="margin-left: 30%;"  id="expense-chart"></canvas>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    
+        let totalBalance = 0;
+        let totalExpense = 0;
+        let expenseChart;
+    
+        function welcome() {
+            const user = JSON.parse(localStorage.getItem('loggedInUser'));
+            document.getElementById('username').innerHTML = `${user.username}`;
+        }
+    
+        window.onload = () => {
+            welcome();
+            updateData();
+        };
+    
+        function logout() {
+            Swal.fire({
+            title: "Are you sure you want to logout?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Logout"
+            }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('loggedInUser');
+                window.location.href = './login.html';
+            }
+            });
+        }
+    
+    // Add Income
+        document.getElementById('income-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            const user = JSON.parse(localStorage.getItem('user' + loggedInUser.userId));
+    
+            let type = document.getElementById('income-type').value;
+            let amount = parseFloat(document.getElementById('income-amount').value);
+    
+            user.balance += amount;
+            user.transactions.push({
+                type: type,
+                amount: amount,
+                balance: user.balance,
+                date: new Date().toISOString()
+            });
+    
+            localStorage.setItem('user' + loggedInUser.userId, JSON.stringify(user));
+            document.getElementById('income-form').reset();
+            Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: "Income added successfully",
+                showConfirmButton: false,
+                timer: 1500
+            });
+    
+            updateData();
+            expenseChart.update();
+        });
+    
+    // Add Expense
+        document.getElementById('expense-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+    
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            const user = JSON.parse(localStorage.getItem('user' + loggedInUser.userId));
+    
+            let type = document.getElementById('expense-type').value;
+            let amount = parseFloat(document.getElementById('expense-amount').value);
+    
+            if (amount <= 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Enter a valid amount",
+                });
+            } else if (amount > user.balance) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Insufficient Balance",
+                });
+            } else {
+                user.balance -= amount;
+                user.transactions.push({
+                    type: type,
+                    amount: -amount,
+                    balance: user.balance,
+                    date: new Date().toISOString()
+                });
+    
+                localStorage.setItem('user' + loggedInUser.userId, JSON.stringify(user));
+                updateChartWithNewExpense(type, amount);
+    
+                document.getElementById('expense-form').reset();
+                Swal.fire({
+                    position: "top-end",
+                    icon: "success",
+                    title: "Expense added successfully",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            }
+    
+            updateData();
+            expenseChart.update();
+        });
+    
+    // Random Color
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    
+    // Load and update Data
+        function updateData() {
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            const user = JSON.parse(localStorage.getItem('user' + loggedInUser.userId));
+    
+            document.getElementById('total-balance').textContent = `$${user.balance}`;
+            let totalExpense = user.transactions
+                .filter(x => x.amount < 0)
+                .reduce((x, y) => x + Math.abs(y.amount), 0);
+            document.getElementById('total-expense').textContent = `$${totalExpense}`;
+    
+            let incomeDetails = document.getElementById('income-details');
+            let expenseDetails = document.getElementById('expense-details');
+    
+            incomeDetails.innerHTML = ``;
+            expenseDetails.innerHTML = ``;
+            user.transactions.forEach(x => {
+                const row =
+                    `
+                    <tr>
+                        <td>${x.type}</td>
+                        <td>${x.amount}</td>
+                        <td>${x.balance}</td>
+                        <td>${x.date}</td>
+                    </tr>
+                    `
+    
+                if (x.amount > 0) {
+                    incomeDetails.innerHTML += row;
+                } else {
+                    expenseDetails.innerHTML += row;
+                }
+            })
+    
+            if (expenseChart) {
+                updateChart();
+                expenseChart.update();
+            }
+        }
+    
+    // Clear All
+        document.getElementById('clear').addEventListener('click', function() {
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            const user = JSON.parse(localStorage.getItem('user' + loggedInUser.userId));
+            user.transactions = [];
+            user.balance = 0;
+            localStorage.setItem('user' + loggedInUser.userId, JSON.stringify(user));
+            Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: "Data Cleared successfully",
+                showConfirmButton: false,
+                timer: 1500
+            });
+    
+            updateData();
+            expenseChart.update();
+            const chartContainer = document.querySelector('.pie-chart-container');
+            chartContainer.style.display = 'none';
+        });
+    
+    // Initialize and update chart
+        function toggleChart() {
+            const chartContainer = document.querySelector('.pie-chart-container');
+          
+            const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+            const user = JSON.parse(localStorage.getItem('user' + loggedInUser.userId));
+
+            if(user.transactions.length>0){
+                if(chartContainer.style.display == 'block'){
+                chartContainer.style.display = 'none';
+            }
+            else
+            {
+                chartContainer.style.display = 'block';
+            }
+                
+            }
+            
+            const labels = user.transactions.filter(x => x.amount < 0).map(x => x.type);
+            const expenseData = user.transactions.filter(x => x.amount < 0).map(x => Math.abs(x.amount));
+    
+            const totalBalance = user.balance;
+    
+            labels.push('Remaining Balance');
+            expenseData.push(totalBalance);
+    
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Expenses vs Balance',
+                    data: expenseData,
+                    backgroundColor: [
+                        ...labels.map(() => getRandomColor()), // Random color for each expense
+                        'rgb(0, 255, 0)'
+                    ],
+                    hoverOffset: 4
+                }]
+            };
+    
+            const config = {
+                type: 'pie',
+                data: data,
+            };
+    
+            if (expenseChart) {
+                expenseChart.destroy();
+            }
+    
+            expenseChart = new Chart(document.getElementById('expense-chart').getContext('2d'), config);
+        }
+
+//Updating Chart
+        function updateChart() {
+        const chartContainer = document.querySelector('.pie-chart-container');
+        const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
+        const user = JSON.parse(localStorage.getItem('user' + loggedInUser.userId));
+
+        const labels = user.transactions.filter(x => x.amount < 0).map(x => x.type);
+        const expenseData = user.transactions.filter(x => x.amount < 0).map(x => Math.abs(x.amount));
+
+        // Calculate the remaining balance
+        const totalBalance = user.balance;
+
+        labels.push('Remaining Balance');
+        expenseData.push(totalBalance);
+
+        const data = {
+            labels: labels,
+            datasets: [{
+                label: 'Expenses vs Balance',
+                data: expenseData,
+                backgroundColor: [
+                    ...labels.map(() => getRandomColor()), // Random color for each expense
+                    'rgb(0, 255, 0)' // Green for remaining balance
+                ],
+                hoverOffset: 4
+            }]
+        };
+
+        const config = {
+            type: 'pie',
+            data: data,
+        };
+
+        if (expenseChart) {
+            expenseChart.destroy(); // Destroy the existing chart before creating a new one
+        }
+
+        expenseChart = new Chart(document.getElementById('expense-chart').getContext('2d'), config);
+    }
+
+    
+    //Updating Chart while adding new expense
+        function updateChartWithNewExpense(type, amount) {
+            if (expenseChart) {
+                const remainingBalanceIndex = expenseChart.data.labels.indexOf('Remaining Balance');
+                const newBalance = expenseChart.data.datasets[0].data[remainingBalanceIndex] - amount;
+    
+                // Update the chart data
+                expenseChart.data.labels.splice(remainingBalanceIndex, 0, type);
+                expenseChart.data.datasets[0].data.splice(remainingBalanceIndex, 0, amount);
+    
+                // Update remaining balance
+                expenseChart.data.datasets[0].data[remainingBalanceIndex + 1] = newBalance;
+    
+                // Update chart colors
+                expenseChart.data.datasets[0].backgroundColor.splice(remainingBalanceIndex, 0, getRandomColor());
+    
+                expenseChart.update(); // Refresh the chart
+            }
+        }
+    
+    </script>
+    
+</body>
+</html>

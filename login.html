@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashFlow - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="./images/budget.png">
+    <style>
+        body {
+            background-color: #f0f0f0; /* Light gray background */
+            font-family: 'Roboto', sans-serif;
+        }
+        .login-container {
+            max-width: 900px;
+            margin: 200px auto;
+            background-color: #ffffff; 
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+        }
+        .image-section {
+            background-color: #4b0082; /* Purple accent background */
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+        .image-section img,
+        .image-section video {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+        .form-section {
+            padding: 40px;
+            background-color: #ffffff; /* White form background */
+            flex: 1;
+        }
+        .form-section h1 {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 30px;
+            color: #4b0082; /* Purple heading */
+        }
+        .form-control {
+            background-color: #f8f9fa; /* Light input background */
+            border: 1px solid #ced4da; /* Neutral border */
+            color: #495057;
+        }
+        .form-control::placeholder {
+            color: #adb5bd; /* Subtle placeholder color */
+        }
+        .btn-primary {
+            background-color: #4b0082; /* Purple button */
+            border: none;
+            font-weight: bold;
+        }
+        .btn-primary:hover {
+            background-color: #3a0068; /* Darker purple on hover */
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .register-link a {
+            color: #4b0082; /* Purple link color */
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="image-section">
+            <img src="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExandyeTlibXo3bHk3N2NyNGs4NGZpMmx4N3N1OG41bHdmODlwZjhxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NyniJ2Nf2ZzlE8GYsl/giphy.webp" alt="Budget Calculator Image">
+        </div>
+        <div class="form-section">
+            <h1>CashFlow</h1>
+            <form>
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" placeholder="Enter your username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter your password" required>
+                </div>
+                <button type="button" onclick="login()" class="btn btn-primary w-100">Login</button>
+                <div class="register-link">
+                    <p>Don't have an account? <a href="index.html">Register here</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function login(){
+            let username = document.getElementById('username').value;
+            let password = document.getElementById('password').value;
+            let userFound = false;
+
+            
+            if (username === "" || password === "") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Please fill all the fields",
+                });
+            }
+
+             else{
+                let keys = Object.keys(localStorage);
+
+                for(key of keys){
+                    if(key.startsWith('user')){
+                        const user = JSON.parse(localStorage.getItem(key));
+                        if(user.username == username && user.password == password){
+                            userFound = true;
+                            localStorage.setItem('loggedInUser', JSON.stringify(user));
+                            break;
+                        }
+                    }
+                }
+
+                if(userFound){
+                    window.location.href = './home.html';
+                }
+                    else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Login Failed",
+                    text: "Invalid username or password",
+                });
+            }
+        }
+    }
+    </script>
+
+</body>
+</html>
